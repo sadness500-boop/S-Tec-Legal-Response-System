@@ -1,0 +1,12 @@
+{
+  "appId": "kr.stecbest.legal",
+  "appName": "법률 대응 시스템",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https",
+    "hostname": "sadness500-boop.github.io"
+  },
+  "android": {
+    "allowMixedContent": false
+  }
+}
