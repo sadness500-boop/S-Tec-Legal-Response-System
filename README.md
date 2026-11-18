@@ -35,6 +35,13 @@
 7. **⑤ 근무자 조치 문서**: 갈등·비위·근태 등 근무자 귀책 사안일 때만 나타나며, 징계 양정·절차·서식을 별도 Word·PPT·PDF로 출력합니다.
 8. 공문·메일·카톡·진정서 파일 불러오기(글자 인식), 출력 기록 관리
 
+## 매뉴얼 (docs/)
+
+| 문서 | Word | PPT | PDF |
+|---|---|---|---|
+| 사용자 매뉴얼 | [docx](docs/S-Tec-Legal-Response-System_사용자매뉴얼_v1.0.0.docx) | [pptx](docs/S-Tec-Legal-Response-System_사용자매뉴얼_v1.0.0.pptx) | [pdf](docs/S-Tec-Legal-Response-System_사용자매뉴얼_v1.0.0.pdf) |
+| 제작자 관리 사용매뉴얼 | [docx](docs/S-Tec-Legal-Response-System_제작자관리매뉴얼_v1.0.0.docx) | [pptx](docs/S-Tec-Legal-Response-System_제작자관리매뉴얼_v1.0.0.pptx) | [pdf](docs/S-Tec-Legal-Response-System_제작자관리매뉴얼_v1.0.0.pdf) |
+
 ## 통합 로그인 · 프로그램별 권한
 
 - `auth-config.json`이 근태관리·Complaint 프로그램과 **같은 Supabase 서버**를 가리킵니다. 하나의 아이디로 사용합니다.
