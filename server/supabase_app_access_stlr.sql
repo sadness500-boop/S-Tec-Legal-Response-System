@@ -1,22 +1,33 @@
 -- =====================================================================
---  Legal Response System(법률 대응 시스템) — 프로그램별 권한에 'stlr' 추가
+--  Legal Response System(법률 대응 시스템) — 통합 로그인 서버에 'stlr' 등록
 --  Designed & Developed by Rat Rae Choi
 --
 --  ● 어디에 실행하나요?  통합 로그인 Supabase 프로젝트(mnsuebexlzhvomxhrear) → SQL Editor → 이 파일 전체 붙여넣기 → Run (한 번만)
---  ● 전제: supabase_app_access.sql(프로그램별 권한)이 이미 실행되어 있어야 합니다.
---  ● 무엇을 하나요?  app_access.app 허용값 목록 제한을 「영문 소문자 프로그램 코드」 형식 검사로 바꿔
---    stlr(법률 대응 시스템)을 포함해 앞으로 추가되는 프로그램도 SQL 수정 없이 권한을 지정할 수 있게 합니다.
---    기존 권한 자료는 그대로 유지됩니다. 다시 실행해도 안전합니다.
+--  ● 무엇을 하나요?
+--    1) 통합관리 시스템의 「프로그램 등록부」(program_registry)에 법률 대응 시스템(stlr)을 추가 → 메인 화면 메뉴 카드 표시
+--    2) 프로그램별 권한(app_access)에서 stlr 를 지정할 수 있게 함
+--       (등록부 방식이면 등록만으로 허용 / 예전 허용목록 방식이면 목록 제한을 형식 검사로 교체)
+--  ● 기존 자료는 지우지 않습니다. 다시 실행해도 안전합니다.
 -- =====================================================================
 do $$
 declare c record;
 begin
-  for c in select conname from pg_constraint
-           where conrelid = 'public.app_access'::regclass and contype = 'c'
-             and pg_get_constraintdef(oid) ilike '%(app = ANY%'
-  loop
-    execute format('alter table public.app_access drop constraint %I', c.conname);
-  end loop;
+  if to_regclass('public.program_registry') is not null then
+    insert into public.program_registry (code, name, full_name, url, icon, color, sort, uses_access, version, note)
+    values ('stlr', '법률 대응 시스템', 'Legal Response System',
+            'https://sadness500-boop.github.io/S-Tec-Legal-Response-System/', 'assets/apps/stlr.png', '#1F3A73', 80, true, '1.0.0',
+            '부당 클레임·근무자 사안 법률 검토 Word·PPT·PDF')
+    on conflict (code) do nothing;
+  end if;
+  if to_regclass('public.app_access') is not null then
+    for c in select conname from pg_constraint
+             where conrelid = 'public.app_access'::regclass and contype = 'c'
+               and pg_get_constraintdef(oid) ilike '%(app = ANY%'
+    loop
+      execute format('alter table public.app_access drop constraint %I', c.conname);
+    end loop;
+  end if;
 end $$;
-alter table public.app_access drop constraint if exists app_access_app_format;
-alter table public.app_access add constraint app_access_app_format check (app ~ '^[a-z]{2,8}$');
+
+-- 확인: 아래 결과에 stlr 한 줄이 보이면 완료
+select code, name, url, sort from public.program_registry where code = 'stlr';
