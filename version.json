@@ -1,7 +1,7 @@
 {
-  "version": "1.1.0",
+  "version": "1.1.1",
   "date": "2026-11-19",
-  "note": "② 사안 분류 확대(오른쪽 열 이동·갈래별 탭) · 사안 6개 갈래 76개 항목(사건·사고·배상 / 계약·입찰·도급 / 행정·인허가·감독 / 기타·대외·소송 추가) · 법령·판례 115개 · 대표 사례 8개",
-  "html": "releases/S-Tec-Legal-Response-System_v1.1.0.html",
-  "apk": "releases/S-Tec-Legal-Response-System_v1.1.0.apk"
+  "note": "상단 제목 아래 안내 글씨(분류·법령 수) 삭제, 아이콘·프로그램 명칭을 상단 카드와 같은 줄 가운데로 배치",
+  "html": "releases/S-Tec-Legal-Response-System_v1.1.1.html",
+  "apk": "releases/S-Tec-Legal-Response-System_v1.1.1.apk"
 }
