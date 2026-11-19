@@ -7,8 +7,8 @@
 const APP = {
   name: 'Legal Response System',
   ko: '법률 대응 시스템',
-  version: 'v1.0.0',
-  build: '2026-11-18',
+  version: 'v1.1.0',
+  build: '2026-11-19',
   shareUrl: 'https://sadness500-boop.github.io/S-Tec-Legal-Response-System/',
   apkUrl: 'https://github.com/sadness500-boop/S-Tec-Legal-Response-System/releases/download/app-latest/stlr-latest.apk',
   repo: 'https://github.com/sadness500-boop/S-Tec-Legal-Response-System',
@@ -76,11 +76,28 @@ function loadImg(src) { return new Promise((res, rej) => { const i = new Image()
 /* =====================================================================
  * 1) 화면 — 분류 트리 / 입력 / 추천
  * ===================================================================== */
-const SIDE = { C: { t: 'Ⅰ. 고객사의 부당·비합리적 클레임', s: '계약·법령상 근거 없는 요구 · 갑질 · 책임 전가' }, W: { t: 'Ⅱ. 근무자로 인해 발생한 사안', s: '노동청 진정 · 해고·수습 · 산재 · 갈등 · 비위' } };
+const SIDE = {
+  C: { t: 'Ⅰ. 고객사의 부당·비합리적 클레임', s: '근거 없는 요구 · 갑질 · 책임 전가', lb: '고객사 클레임', ic: '🏢', col: '0E2AA8', to: 'C' },
+  W: { t: 'Ⅱ. 근무자로 인해 발생한 사안', s: '노동청 진정 · 해고·수습 · 산재 · 갈등 · 비위', lb: '근무자 사안', ic: '👷', col: '1E8B3A', to: 'W' },
+  S: { t: 'Ⅲ. 사건·사고·배상', s: '화재 · 시설·작업 사고 · 범죄·주차 · 급식·방역 · 보험', lb: '사건·사고·배상', ic: '🚨', col: 'C2410C', to: 'C' },
+  T: { t: 'Ⅳ. 계약·입찰·도급', s: '불리 조항 · 부정당 제재 · 불법파견 · 채권 회수 · 고용승계', lb: '계약·입찰·도급', ic: '📄', col: '6D28D9', to: 'C' },
+  G: { t: 'Ⅴ. 행정·인허가·감독', s: '경비업 허가·배치 · 위생·소독 · 근로감독 · 안전감독 · 4대보험', lb: '행정·인허가·감독', ic: '🏛', col: '0F766E', to: 'A' },
+  O: { t: 'Ⅵ. 기타·대외·소송', s: '언론 · 온라인 게시물 · 소장·내용증명 · 압류 · 외국인 · 유족', lb: '기타·대외·소송', ic: '📌', col: '475569', to: 'A' }
+};
+function replyTo(items) { const t = items.map(x => SIDE[x.L.side].to); return t.includes('C') ? 'C' : t.includes('W') ? 'W' : 'A'; }
+let SIDE_F = '';
+function renderSideTabs() {
+  const box = $('#sideTabs'); if (!box) return;
+  const cnt = k => TAX.filter(L => !k || L.side === k).reduce((n, L) => n + L.mids.reduce((m, M) => m + M.smalls.length, 0), 0);
+  box.innerHTML = [['', '전체']].concat(Object.entries(SIDE).map(([k, v]) => [k, v.ic + ' ' + v.lb])).map(([k, t]) =>
+    `<button type="button" data-side="${k}" class="${SIDE_F === k ? 'on' : ''}">${t}<i>${cnt(k)}</i></button>`).join('');
+  box.onclick = e => { const b = e.target.closest('button[data-side]'); if (!b) return; SIDE_F = b.dataset.side; renderSideTabs(); renderTree($('#q').value); };
+}
 function renderTree(filter = '') {
   const f = filter.trim();
   const box = $('#tree'); let h = '', last = '';
   TAX.forEach(L => {
+    if (SIDE_F && L.side !== SIDE_F && !f) return;
     let lh = '';
     L.mids.forEach(M => {
       const smalls = M.smalls.filter(S => !f || (S.n + M.n + L.n + S.k.join(' ')).includes(f));
@@ -103,8 +120,8 @@ function togglePick(code) {
 }
 function renderPicked() {
   const box = $('#picked');
-  if (!state.picked.length) { box.innerHTML = '<span class="hint">왼쪽 분류에서 소항목을 선택하거나, 내용을 입력한 뒤 [키워드 추천]을 누르세요.</span>'; $('#sevAuto').textContent = '-'; return; }
-  box.innerHTML = state.picked.map(c => { const x = findSmall(c); return `<span class="chip s${x.S.s}" title="${esc(SIDE[x.L.side].t + ' > ' + x.L.n + ' > ' + x.M.n)}">${x.L.side === 'C' ? '🏢' : '👷'} ${x.S.c} ${esc(x.S.n)}<button data-x="${c}">×</button></span>`; }).join('');
+  if (!state.picked.length) { box.innerHTML = '<span class="hint">오른쪽 「② 사안 분류」에서 소항목을 선택하거나, 내용을 입력한 뒤 [키워드 추천]을 누르세요.</span>'; $('#sevAuto').textContent = '-'; return; }
+  box.innerHTML = state.picked.map(c => { const x = findSmall(c); return `<span class="chip s${x.S.s}" title="${esc(SIDE[x.L.side].t + ' > ' + x.L.n + ' > ' + x.M.n)}">${SIDE[x.L.side].ic} ${x.S.c} ${esc(x.S.n)}<button data-x="${c}">×</button></span>`; }).join('');
   $('#sevAuto').textContent = SEV[autoSev()].label;
 }
 function autoSev() { const o = { S: 3, A: 2, B: 1 }; let best = 'B'; state.picked.forEach(c => { const s = findSmall(c).S.s; if (o[s] > o[best]) best = s; }); return best; }
@@ -143,8 +160,8 @@ function parseGrp(text) {
   });
   return out.filter(g => g.lines.length || g.title);
 }
-function sideOf(items) { const s = uniq(items.map(x => x.L.side)); return s.length > 1 ? 'CW' : s[0]; }
-function trackLabel(side) { return side === 'C' ? '고객사 클레임' : side === 'W' ? '근무자 기인 사안' : '고객사 클레임 + 근무자 사안'; }
+function sideOf(items) { return uniq(items.map(x => x.L.side)).join(''); }
+function trackLabel(side) { return String(side).split('').map(k => SIDE[k] ? SIDE[k].lb : k).join(' + '); }
 function buildPlan() {
   const f = readForm();
   if (!f.client) { toast('① 발생 사업장을 먼저 선택하세요(목록에 없으면 직접 입력).'); document.getElementById('siteCard').scrollIntoView({ behavior: 'smooth' }); return null; }
@@ -161,20 +178,25 @@ function buildPlan() {
   const immG = [{ title: '공통 초동 대응', lines: COMMON.immediate }].concat(grp('i'));
   const riskG = items.map(x => ({ title: `${x.S.c} ${x.S.n}`, lines: [x.S.d] })).concat([{ title: '적용 범위', lines: [COMMON.scale] }]);
   const docsG = [{ title: '', lines: uniq(items.flatMap(x => x.S.doc)) }];
-  const hasC = items.some(x => x.L.side === 'C'), hasW = items.some(x => x.L.side === 'W');
+  const rt = replyTo(items), hasC = rt === 'C', hasW = rt === 'W', hasA = rt === 'A';
   const raiser = f.raiser ? `${f.raiser}께서` : '귀사에서';
-  const repC = items.filter(x => x.L.side === 'C').map(x => x.S.rep), repW = items.filter(x => x.L.side === 'W').map(x => x.S.rep);
+  const repC = items.filter(x => SIDE[x.L.side].to === 'C').map(x => x.S.rep), repW = items.filter(x => SIDE[x.L.side].to === 'W').map(x => x.S.rep), repA = items.map(x => x.S.rep);
   const d7 = addDays(d0, 7), d30 = addDays(d0, 30);
   const reply = hasC ? [
     `귀사의 무궁한 발전을 기원합니다.`,
-    `${fmtD(d0)} ${raiser} 요청하신 ${f.site ? f.site + ' ' : ''}「${items.filter(x => x.L.side === 'C').map(x => x.S.n).join('」, 「')}」 관련 사항에 대하여 당사의 검토 의견을 다음과 같이 회신드립니다.`,
+    `${fmtD(d0)} ${raiser} 요청하신 ${f.site ? f.site + ' ' : ''}「${items.filter(x => SIDE[x.L.side].to === 'C').map(x => x.S.n).join('」, 「')}」 관련 사항에 대하여 당사의 검토 의견을 다음과 같이 회신드립니다.`,
     ...repC.map((r, i) => `${i + 1}. ${r.replace(/[.。]$/, '')}.`),
     `당사는 귀사와의 신뢰 관계를 무엇보다 소중히 여기며, 위 사항은 관계 법령과 계약에 따른 불가피한 기준임을 양해 부탁드립니다. 필요하시면 ${fmtD(d7)}까지 협의 일정을 잡아 대안을 함께 마련하겠습니다.`
-  ].join('\n') : [
+  ].join('\n') : hasW ? [
     `${f.workers ? f.workers + ' 님께' : '관련 근로자께'} 알려드립니다.`,
     `${fmtD(d0)} 제기·발생한 「${names.join('」, 「')}」 사안과 관련하여 회사의 확인 결과와 처리 방침을 다음과 같이 안내드립니다.`,
     ...repW.map((r, i) => `${i + 1}. ${r.replace(/[.。]$/, '')}.`),
     `본 안내 내용에 의견이 있으시면 ${fmtD(d7)}까지 서면 또는 면담으로 제출해 주십시오. 회사는 관계 법령에 정한 절차와 근로자의 권리를 존중하여 처리하겠습니다.`
+  ].join('\n') : [
+    `${f.raiser ? f.raiser + ' 귀하' : '관계기관·관계자 귀하'}`,
+    `${fmtD(d0)} 발생·접수된 「${names.join('」, 「')}」 사안과 관련하여 당사의 확인 결과와 조치 계획을 다음과 같이 회신드립니다.`,
+    ...repA.map((r, i) => `${i + 1}. ${r.replace(/[.。]$/, '')}.`),
+    `추가로 필요한 자료나 의견이 있으시면 ${fmtD(d7)}까지 알려 주시기 바랍니다. 당사는 관계 법령에 따라 성실히 협조하겠습니다.`
   ].join('\n');
   const vSum = items.map(x => `${x.S.c} ${VERDICT[verdicts[x.S.c]].label}`).join(' · ');
   const st = f.siteObj;
@@ -190,7 +212,7 @@ function buildPlan() {
   const now = kstNow();
   const docNo = `STEC-LR-${String(now.getFullYear()).slice(2)}${pad(now.getMonth() + 1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}`;
   return {
-    f, items, side, sev: f.sev, d0, docNo, made: now, names, site: st || null, verdicts, hasC, hasW,
+    f, items, side, sev: f.sev, d0, docNo, made: now, names, site: st || null, verdicts, hasC, hasW, hasA,
     summary: summary.join('\n'), facts: grpText(factsG), issue: grpText(grp('iss')), judge: grpText(grp('judge')),
     imm: grpText(immG), steps: grpText(grp('sh')), prev: grpText(grp('p')), docs: grpText(docsG), risk: grpText(riskG),
     reply, follow: COMMON.followup.map(s => '- ' + s).join('\n'),
@@ -206,7 +228,7 @@ const EDIT_FIELDS = [
 ];
 function renderEditor(p) {
   const L = p.lawIds.map(id => { const x = LAWS[id]; return `<label class="law"><input type="checkbox" data-law="${id}" ${p.lawOn[id] ? 'checked' : ''}> <b>${esc(x.law)} ${esc(x.art)}</b> ${esc(x.title)} <a href="${lawUrl(x)}" target="_blank" rel="noopener" title="국가법령정보센터 원문">원문↗</a><small>${esc(x.sum)}</small></label>`; }).join('');
-  const V = p.items.map(x => `<div class="vrow2"><span class="vc">${x.L.side === 'C' ? '🏢' : '👷'} ${x.S.c} ${esc(x.S.n)}</span><select data-verdict="${x.S.c}">${Object.entries(VERDICT).map(([k, v]) => `<option value="${k}" ${p.verdicts[x.S.c] === k ? 'selected' : ''}>${v.label}</option>`).join('')}</select></div>`).join('');
+  const V = p.items.map(x => `<div class="vrow2"><span class="vc">${SIDE[x.L.side].ic} ${x.S.c} ${esc(x.S.n)}</span><select data-verdict="${x.S.c}">${Object.entries(VERDICT).map(([k, v]) => `<option value="${k}" ${p.verdicts[x.S.c] === k ? 'selected' : ''}>${v.label}</option>`).join('')}</select></div>`).join('');
   $('#editor').innerHTML = `<div class="ed-head"><div><b>${esc(p.f.client)}</b> · ${esc(p.names.join(', '))}<br><small>${trackLabel(p.side)}</small></div><span class="sevbig s${p.sev}">${SEV[p.sev].label}</span></div>
    <p class="ed-tip">생성된 검토 의견을 그대로 쓰거나 고쳐서 출력하세요. <b>■</b>로 시작하는 줄은 소제목, <b>-</b>로 시작하는 줄은 항목입니다. 법령은 「원문↗」으로 국가법령정보센터에서 확인하세요.</p>
    <div class="ed"><label>Ⅴ. 당사 판단(결론) — 항목별 선택</label><div class="verdicts">${V}</div><small class="vhelp">${Object.values(VERDICT).map(v => `<b style="color:#${v.color}">${v.label}</b> ${v.desc}`).join('<br>')}</small></div>` +
@@ -223,7 +245,7 @@ function syncEditor() {
   return p;
 }
 function docTitle(p) { return p.f.mode === 'client' ? '법률 검토 의견서' : '법률 검토 및 대응 방안 보고서'; }
-function replyTitle(p) { return p.hasC ? '고객사 회신(안)' : '근로자 안내·통지(안)'; }
+function replyTitle(p) { return p.hasC ? '고객사 회신(안)' : p.hasW ? '근로자 안내·통지(안)' : '관계기관·상대방 회신(안)'; }
 function fileBase(p) { const d = p.made; return `${String(d.getFullYear()).slice(2)}${pad(d.getMonth() + 1)}${pad(d.getDate())}_${safeName(p.f.client)}_법률대응방안${p.f.mode === 'client' ? '(대외)' : '(내부)'}`; }
 
 /* =====================================================================
@@ -313,7 +335,7 @@ async function makeDocx(p) {
   }
   const cw2 = [1500, 2000, 4638, 1500];
   ch.push(table([[th('구분', cw2[0]), th('대분류', cw2[1]), th('사안 항목(소분류)', cw2[2]), th(isClient ? '판단' : '위험도', cw2[3])]].concat(
-    p.items.map(x => [td(x.L.side === 'C' ? '고객사 클레임' : '근무자 사안', cw2[0], { align: docx.AlignmentType.CENTER, size: 17 }), td(`${x.L.c}. ${x.L.n}`, cw2[1], { size: 17 }), td(`${x.S.c} ${x.S.n}`, cw2[2], { bold: true }),
+    p.items.map(x => [td(SIDE[x.L.side].lb, cw2[0], { align: docx.AlignmentType.CENTER, size: 17 }), td(`${x.L.c}. ${x.L.n}`, cw2[1], { size: 17 }), td(`${x.S.c} ${x.S.n}`, cw2[2], { bold: true }),
       isClient ? td(VERDICT[p.verdicts[x.S.c]].label, cw2[3], { align: docx.AlignmentType.CENTER, bold: true, color: VERDICT[p.verdicts[x.S.c]].color })
                : td(SEV[x.S.s].label, cw2[3], { align: docx.AlignmentType.CENTER, bold: true, color: SEV[x.S.s].color })])), cw2, { header: true }));
   // Ⅱ 사실관계
@@ -668,8 +690,8 @@ function buildSlides(p) {
   const ih = Math.min(0.9, 3.25 / p.items.length);
   p.items.forEach((x, i) => {
     const y = 3.15 + i * ih, v = VERDICT[p.verdicts[x.S.c]];
-    o3.push(Rc(7.35, y, 0.12, ih - 0.12, x.L.side === 'C' ? K.blu : K.grn));
-    o3.push(T(7.6, y, 3.6, ih - 0.08, [{ text: `${x.S.c}  ${x.S.n}`, bold: true }, { text: `${x.L.side === 'C' ? '고객사 클레임' : '근무자 사안'} › ${x.L.n}`, size: 0.8, color: C.gray }], { max: 14, min: 8.5, gap: 1 }));
+    o3.push(Rc(7.35, y, 0.12, ih - 0.12, SIDE[x.L.side].col));
+    o3.push(T(7.6, y, 3.6, ih - 0.08, [{ text: `${x.S.c}  ${x.S.n}`, bold: true }, { text: `${SIDE[x.L.side].lb} › ${x.L.n}`, size: 0.8, color: C.gray }], { max: 14, min: 8.5, gap: 1 }));
     o3.push(Rc(11.3, y + 0.08, 1.25, 0.36, v.color, { k: 'para' }));
     o3.push(T(11.3, y + 0.08, 1.25, 0.36, v.label, { max: 11, min: 8, bold: true, color: C.white, align: 'center', valign: 'middle' }));
   });
@@ -836,7 +858,7 @@ function buildSlides(p) {
   S.push(o11); no++;
 
   /* 12. 회신·통지 요지 */
-  const o12 = frame(`${NN()}  ${replyTitle(p)}`, p.hasC ? '고객사에 보낼 공식 회신 문안 — 근거와 대안을 함께' : '근로자·관계기관에 보낼 안내 문안', no, p);
+  const o12 = frame(`${NN()}  ${replyTitle(p)}`, p.hasC ? '고객사에 보낼 공식 회신 문안 — 근거와 대안을 함께' : p.hasW ? '근로자에게 보낼 안내·통지 문안' : '관계기관·상대방에 보낼 회신 문안', no, p);
   o12.push(Rc(0.6, 1.7, 8.0, 4.72, K.tint, { line: K.line })); o12.push(Rc(0.6, 1.7, 0.07, 4.72, K.navy));
   o12.push(T(0.9, 1.85, 7.5, 4.45, lines(p.reply).map(t => ({ text: t })), { max: 13, min: 7.5, color: '2A3150', lh: 1.3, gap: 5 }));
   o12.push(Rc(8.85, 1.7, 3.9, 4.72, 'FAFBFC', { line: K.line })); o12.push(Rc(8.85, 1.7, 3.9, 0.06, C.green));
@@ -999,14 +1021,14 @@ async function init() {
   uiInit();
   let nS = 0, nM = 0; TAX.forEach(L => { nM += L.mids.length; L.mids.forEach(M => nS += M.smalls.length); });
   $('#stat').textContent = `대분류 ${TAX.length} · 중분류 ${nM} · 소분류 ${nS} · 법령·판례 ${Object.keys(LAWS).length - 2}`;
-  renderTree(); renderPicked(); renderHistory();
+  renderSideTabs(); renderTree(); renderPicked(); renderHistory();
   $('#q').addEventListener('input', e => renderTree(e.target.value));
   $('#tree').addEventListener('click', e => { const li = e.target.closest('li.sm'); if (li) togglePick(li.dataset.c); });
   $('#picked').addEventListener('click', e => { const b = e.target.closest('button[data-x]'); if (b) togglePick(b.dataset.x); });
   $('#sugg').addEventListener('click', e => { const b = e.target.closest('button.sg'); if (b && !state.picked.includes(b.dataset.c)) togglePick(b.dataset.c); });
   $('#btnSugg').onclick = suggest;
   $('#btnSample').onclick = sample;
-  $('#btnGen').onclick = () => { const p = buildPlan(); if (!p) return; state.plan = p; renderEditor(p); renderWorkerForm(); toast('법률 검토가 생성되었습니다. 판단·문안을 검토한 뒤 출력하세요.'); if (innerWidth < 1100) $('#outPanel').scrollIntoView({ behavior: 'smooth' }); };
+  $('#btnGen').onclick = () => { const p = buildPlan(); if (!p) return; state.plan = p; renderEditor(p); renderWorkerForm(); toast('법률 검토가 생성되었습니다. 판단·문안을 검토한 뒤 출력하세요.'); $('#outPanel').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
   document.querySelectorAll('input[name=mode]').forEach(r => r.onchange = () => { if (state.plan && state.plan.items) { syncEditor(); renderEditor(state.plan); } });
   $('#btnDocx').onclick = () => run('docx'); $('#btnPptx').onclick = () => run('pptx'); $('#btnPdf').onclick = () => run('pdf'); $('#btnAll').onclick = () => run('all');
   $('#hist').addEventListener('click', histClick);

@@ -305,6 +305,26 @@ body.dark .smap.nomap{background:linear-gradient(160deg,#1a2240,#141b31)}
  .foot .in{flex-wrap:wrap;justify-content:center;padding:8px 12px}.foot .sp{display:none}
  #toast{bottom:24px;width:90%;text-align:center}
 }
+
+/* v1.1.0 — ② 사안 분류 확대(오른쪽 열) · 6개 갈래 · 사례 카드 축소 */
+#tree{max-height:clamp(380px,56vh,700px)!important;font-size:14px}
+#treeCard .search{font-size:14.5px;padding:10px 12px}
+details.big>summary{font-size:15px}
+#tree li.sm{padding:7px 8px;font-size:13.5px}
+.sidetabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.sidetabs button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:5px 11px;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
+.sidetabs button.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.sidetabs button i{font-style:normal;font-weight:600;opacity:.7;margin-left:3px;font-size:11px}
+.sideS{background:linear-gradient(110deg,#C2410C,#7C2D12)}.sideT{background:linear-gradient(110deg,#6D28D9,#3B0764)}
+.sideG{background:linear-gradient(110deg,#0F766E,#134E4A)}.sideO{background:linear-gradient(110deg,#475569,#1E293B)}
+details.big.bS>summary{border-left-color:#C2410C}details.big.bT>summary{border-left-color:#6D28D9}details.big.bG>summary{border-left-color:#0F766E}details.big.bO>summary{border-left-color:#475569}
+.cases{margin:0 0 10px}.cs-h{margin-bottom:6px}.cs-h b{font-size:13.5px}.cs-h small{font-size:11px}
+.cs-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.cs{padding:6px 8px;gap:7px;align-items:center;border-radius:10px}
+.cs-ic{width:26px;height:26px;font-size:15px;border-radius:7px}
+.cs-b{gap:1px}.cs-b small{display:none}.cs-b em{font-size:9.5px}.cs-b b{font-size:12px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cs-chips{display:none}
+.placeholder>p{margin:6px 0;font-size:12.5px}
 </style>
 </head>
 <body>
@@ -345,16 +365,7 @@ body.dark .smap.nomap{background:linear-gradient(160deg,#1a2240,#141b31)}
     </div>
   </section>
   <!-- ② 분류 -->
-  <section class="card" id="treeCard">
-    <h2><span class="stepn">2</span> 사안 분류 <span class="r">고객사 클레임 · 근무자 사안</span></h2>
-    <div class="body">
-      <input class="search" id="q" placeholder="🔍 항목·키워드 검색 (예: 교체, 갑질, 진정, 수습, 산재)">
-      <div id="tree"></div>
-      <ul class="principle">
-        <li><b style="color:#C62828">고위험</b> 즉시 경영 보고·자문 · <b style="color:#EF6C00">주의</b> 7일 내 공식 대응 · <b style="color:#2E7D32">관리</b> 내부 절차</li>
-      </ul>
-    </div>
-  </section>
+
   <!-- 사업장 위치 (카카오맵) -->
   <section class="card" id="mapCard">
     <div class="body">
@@ -388,7 +399,7 @@ body.dark .smap.nomap{background:linear-gradient(160deg,#1a2240,#141b31)}
         <label class="f"><span>제기자·상대방(소속·직책)</span><input type="text" id="f_raiser" placeholder="예: 총무팀 이사, 근로감독관, 근로자 본인"></label>
         <label class="f"><span>관련 근무자</span><input type="text" id="f_workers" placeholder="예: 야간 경비원 1명, 보안요원 D"></label>
         <div class="full">
-          <label class="f" style="margin-bottom:4px">선택된 사안 항목 (최대 5개) — 🏢 고객사 클레임 · 👷 근무자 사안</label>
+          <label class="f" style="margin-bottom:4px">선택된 사안 항목 (최대 5개) — 🏢 고객사 · 👷 근무자 · 🚨 사고·배상 · 📄 계약 · 🏛 행정 · 📌 기타</label>
           <div class="pickbox" id="picked"></div>
         </div>
         <label class="f full"><span>사안 내용 (상대방 주장·경위) <b>*</b></span><textarea id="f_content" rows="5" placeholder="고객사·근로자·노동청 등 상대방의 주장과 경위를 그대로 적어 주세요. 여러 건이면 줄을 나눠 적습니다."></textarea></label>
@@ -413,9 +424,20 @@ body.dark .smap.nomap{background:linear-gradient(160deg,#1a2240,#141b31)}
 
   <!-- 3. 출력 -->
   <section class="out">
+  <section class="card" id="treeCard">
+    <h2><span class="stepn">2</span> 사안 분류 <span class="r">6개 갈래 · 대·중·소</span></h2>
+    <div class="body">
+      <div class="sidetabs" id="sideTabs"></div>
+      <input class="search" id="q" placeholder="🔍 항목·키워드 검색 (예: 교체, 갑질, 진정, 수습, 산재, 화재, 계약서, 근로감독)">
+      <div id="tree"></div>
+      <ul class="principle">
+        <li><b style="color:#C62828">고위험</b> 즉시 경영 보고·자문 · <b style="color:#EF6C00">주의</b> 7일 내 공식 대응 · <b style="color:#2E7D32">관리</b> 내부 절차</li>
+      </ul>
+    </div>
+  </section>
     <div class="card" id="outPanel">
       <h2><span class="stepn">4</span> 법률 검토 · 대응 방안 · 출력 <span class="r">검토 · 편집 후 출력</span></h2>
-      <div class="body"><div id="editor"><div class="placeholder"><div class="cases" id="caseBox"></div><p>왼쪽에서 사안 항목을 고르고 내용을 입력한 뒤<br><b>[법률 검토 · 대응방안 생성]</b>을 누르세요.</p><p class="hint">내부 검토용은 리스크·내부 유의사항까지, 대외 제출용은 고객사·근로자에게 보낼 수 있는 내용만 출력됩니다.</p></div></div></div>
+      <div class="body"><div id="editor"><div class="placeholder"><div class="cases" id="caseBox"></div><p>위 ②에서 사안 항목을 고르고 ③에 내용을 입력한 뒤<br><b>[법률 검토 · 대응방안 생성]</b>을 누르세요.</p><p class="hint">내부 검토용은 리스크·내부 유의사항까지, 대외 제출용은 고객사·근로자에게 보낼 수 있는 내용만 출력됩니다.</p></div></div></div>
       <div class="outbtns">
         <button class="btn" id="btnDocx" style="background:#2b579a;box-shadow:0 3px 0 #173361">📄 Word<small>머리글·바닥글 서식</small></button>
         <button class="btn" id="btnPptx" style="background:#C43E1C;box-shadow:0 3px 0 #7d2712">📊 PPT<small>16:9 발표자료</small></button>

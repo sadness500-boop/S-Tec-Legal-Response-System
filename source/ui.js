@@ -292,12 +292,24 @@ const CASES = [
       f_content: '고객사가 지난달 용역대금에서 「서비스 미흡」을 이유로 일방적으로 일부를 공제한 데 이어, 30일 후 용역계약을 종료하겠다는 공문을 보냄.\n종료 사유는 구체적으로 적혀 있지 않음.',
       f_demand: '30일 후 용역계약 종료\n공제한 대금은 지급하지 않겠다는 입장',
       f_facts: '계약서 해지 조항(사유·통지기간·시정 기회) 확인 필요\n공제 근거 조항 확인 필요\n현장 근무자 근로계약의 기간·용역 연동 조항 확인 필요',
-      f_goal: '해지 재검토·정산 협의, 근무자는 승계·배치로 고용 유지' } }
+      f_goal: '해지 재검토·정산 협의, 근무자는 승계·배치로 고용 유지' } },
+  { id: 'fire', ic: '🔥', tag: '화재 사고', t: '한국제지 온산공장 — 흡연부스 화재', s: '새벽 순찰 통과 후 제품창고 옆 흡연부스 뒤편 화재 — 감시 사각지대·책임 범위 소명',
+    codes: ['M1-01', 'E1-01'], f: { f_client: '한국제지 온산공장', f_site: '4호기 제품창고 옆 흡연부스', f_job: '보안(경비)', f_channel: '대면', f_occur: '2026-09-23 02:00경', f_raiser: '고객사 공장 관리팀', f_workers: '야간 경비원',
+      f_content: '새벽 02:00경 4호기 제품창고 옆 흡연부스 뒤편에서 화재가 발생함.\n당사 경비원은 01:10경 해당 구역 순찰을 통과했으며, 이후 발화한 것으로 추정됨.\n고객사는 경비 근무 중 화재를 조기에 발견하지 못한 책임을 묻고 있음.',
+      f_demand: '화재사고 경위 보고서 제출\n경비 책임 여부 해명 및 재발방지 대책',
+      f_facts: '순찰 기록상 01:10경 해당 구역 통과 확인\n발화 지점은 경비실 화재수신기·CCTV 미연동 사각지대\n초기 신고·진화 경과 시간대별 정리 필요',
+      f_goal: '순찰 의무 이행을 소명하고 감시 설비 개선으로 재발 방지 — 계약 관계 유지' } },
+  { id: 'dispatch', ic: '🍱', tag: '파견·교체', t: '한국하우톤 — 조리원 파견 교체·급식 위탁 검토', s: '에스텍플러스 파견 조리원 2명 — 조리능력을 이유로 교체 또는 급식업체 위탁 검토',
+    codes: ['A1-01', 'Q1-02', 'C2-01'], f: { f_client: '한국하우톤', f_site: '구내식당', f_job: '조리', f_channel: '대면', f_occur: '2026년 9월', f_raiser: '고객사 총무 담당', f_workers: '파견 조리원 2명',
+      f_content: '에스텍플러스가 파견한 조리원 2명(중식 70~80명, 평일 운영)에 대해 고객사가 메뉴 단순화 등 조리능력 문제를 이유로 인력 교체 또는 급식 전문업체 위탁 전환을 검토하고 있음.',
+      f_demand: '조리원 교체\n또는 급식 위탁 전환(계약 종료)',
+      f_facts: '파견계약 기간·대상업무·파견 기간(2년) 확인 필요\n조리능력 관련 구체적 지적 사례·개선 요청 이력 확인 필요\n교체 시 기존 조리원 타 사업장 배치 가능성 확인',
+      f_goal: '근거 있는 개선으로 계약 유지, 교체 시에도 고용 유지' } }
 ];
 function initCases() {
   const box = document.getElementById('caseBox'); if (!box) return;
-  box.innerHTML = `<div class="cs-h"><b>⚖ 대응이 난감했던 사례로 바로 시작</b><small>누르면 ② 항목과 ③ 내용이 채워집니다 — 실제 내용으로 고쳐 쓰세요</small></div>
-    <div class="cs-grid">${CASES.map((c, i) => `<button type="button" class="cs" data-i="${i}"><span class="cs-ic">${c.ic}</span><span class="cs-b"><em>${esc(c.tag)}</em><b>${esc(c.t)}</b><small>${esc(c.s)}</small>
+  box.innerHTML = `<div class="cs-h"><b>⚖ 대응이 난감했던 사례로 바로 시작</b><small>누르면 ② 항목과 ③ 내용이 채워집니다(마우스를 올리면 요약) — 실제 내용으로 고쳐 쓰세요</small></div>
+    <div class="cs-grid">${CASES.map((c, i) => `<button type="button" class="cs" data-i="${i}" title="${esc(c.t + ' — ' + c.s)}"><span class="cs-ic">${c.ic}</span><span class="cs-b"><em>${esc(c.tag)}</em><b>${esc(c.t)}</b><small>${esc(c.s)}</small>
       <span class="cs-chips">${c.codes.map(code => { const x = findSmall(code); return x ? `<i class="s${x.S.s}">${code}</i>` : ''; }).join('')}</span></span></button>`).join('')}</div>`;
   box.onclick = e => { const b = e.target.closest('.cs'); if (b) loadCase(+b.dataset.i); };
 }
@@ -317,6 +329,7 @@ function loadCase(i) {
 /* ② 사안 분류가 첫 화면 안에 보이도록 — 트리 높이를 화면 아래 끝에 맞춤 */
 function fitTree() {
   const t = document.getElementById('tree'); if (!t) return;
+  t.style.maxHeight = ''; return;   // v1.1.0: ② 사안 분류는 오른쪽 열 — CSS 높이(56vh) 사용
   if (innerWidth <= 820) { t.style.maxHeight = ''; return; }
   const top = t.getBoundingClientRect().top + scrollY, foot = (document.querySelector('.foot') || {}).offsetHeight || 0;
   t.style.maxHeight = Math.max(140, Math.round(innerHeight - top - 66 - (getComputedStyle(document.querySelector('.foot') || document.body).position === 'fixed' ? foot : 0))) + 'px';
