@@ -44,7 +44,7 @@
 | 문서 | Word | PPT | PDF |
 |---|---|---|---|
 | 사용자 매뉴얼 | [docx](docs/S-Tec-Legal-Response-System_사용자매뉴얼_v1.0.0.docx) | [pptx](docs/S-Tec-Legal-Response-System_사용자매뉴얼_v1.0.0.pptx) | [pdf](docs/S-Tec-Legal-Response-System_사용자매뉴얼_v1.0.0.pdf) |
-| 제작자 관리 사용매뉴얼 | [docx](docs/S-Tec-Legal-Response-System_제작자관리매뉴얼_v1.0.0.docx) | [pptx](docs/S-Tec-Legal-Response-System_제작자관리매뉴얼_v1.0.0.pptx) | [pdf](docs/S-Tec-Legal-Response-System_제작자관리매뉴얼_v1.0.0.pdf) |
+| 제작자 관리 사용매뉴얼 | 제작자만 — 메인 「🛡 제작자 관리 콘솔 → 📘 매뉴얼 → 📂 프로그램별 제작자 관리매뉴얼」 또는 상단 「📘 사용자 매뉴얼 → 🛡 제작자 관리매뉴얼」 (서버 비공개 보관함, 공개 주소 없음) | | |
 
 ## 통합 로그인 · 프로그램별 권한
 
