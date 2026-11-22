@@ -1,7 +1,7 @@
 {
-  "version": "1.1.1",
-  "date": "2026-11-19",
-  "note": "상단 제목 아래 안내 글씨(분류·법령 수) 삭제, 아이콘·프로그램 명칭을 상단 카드와 같은 줄 가운데로 배치",
-  "html": "releases/S-Tec-Legal-Response-System_v1.1.1.html",
-  "apk": "releases/S-Tec-Legal-Response-System_v1.1.1.apk"
+  "version": "1.1.2",
+  "date": "2026-11-22",
+  "note": "메인 화면 ① 사업장 선정 아래에 「에스텍 법률대응팀」 3D 스테이지(입체 기울임·그림자·움직이는 장면) 배치",
+  "html": "releases/S-Tec-Legal-Response-System_v1.1.2.html",
+  "apk": "releases/S-Tec-Legal-Response-System_v1.1.2.apk"
 }

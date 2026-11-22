@@ -10,6 +10,8 @@ def png(p): return 'data:image/png;base64,' + base64.b64encode(open(p, 'rb').rea
 asset = json.loads(rd(V + 'assets-base.json'))
 asset['icon'] = png(V + 'icon.png')     # 메인화면 좌측 상단 아이콘
 asset['voc'] = png(V + 'voc.png')       # PPT·PDF 표지 로고 = 앱 아이콘
+asset['stage'] = 'data:video/mp4;base64,' + base64.b64encode(open(V + 'stage-team.mp4', 'rb').read()).decode()        # 메인 화면 법률대응팀 3D 스테이지
+asset['stagePoster'] = 'data:image/jpeg;base64,' + base64.b64encode(open(V + 'stage-team.jpg', 'rb').read()).decode()
 html = rd(S + 'index.html')
 for ph, val in [('<!--LIBS-->', rd(V + 'libs.html')), ('<!--QR-->', rd(V + 'qr.html')),
                 ('/*ASSETS*/', 'const ASSET=' + json.dumps(asset, ensure_ascii=False) + ';'),

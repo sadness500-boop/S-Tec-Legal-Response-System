@@ -7,8 +7,8 @@
 const APP = {
   name: 'Legal Response System',
   ko: '법률 대응 시스템',
-  version: 'v1.1.1',
-  build: '2026-11-19',
+  version: 'v1.1.2',
+  build: '2026-11-22',
   shareUrl: 'https://sadness500-boop.github.io/S-Tec-Legal-Response-System/',
   apkUrl: 'https://github.com/sadness500-boop/S-Tec-Legal-Response-System/releases/download/app-latest/stlr-latest.apk',
   repo: 'https://github.com/sadness500-boop/S-Tec-Legal-Response-System',
@@ -1014,6 +1014,7 @@ function sample() { loadCase(0); }
 
 async function init() {
   if ($('#logo2')) $('#logo2').src = ASSET.logo;
+  { const v = $('#stageVid'); if (v && ASSET.stage) { v.poster = ASSET.stagePoster || ''; v.src = ASSET.stage; v.play && v.play().catch(() => {}); } }
   $('#jobList').innerHTML = JOBS.map(j => `<option value="${j}">`).join('');
   $('#f_sev').innerHTML = '<option value="">자동 판정</option>' + Object.entries(SEV).map(([k, v]) => `<option value="${k}">${v.label}</option>`).join('');
   const t = kstNow(); $('#f_date').value = `${t.getFullYear()}-${pad(t.getMonth() + 1)}-${pad(t.getDate())}`;
