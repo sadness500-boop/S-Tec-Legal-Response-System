@@ -317,7 +317,7 @@ async function makeDocx(p) {
   ch.push(P([R('')], { after: 60 }));
   if (p.site) {
     const s2 = p.site;
-    ch.push(H2('발생 사업장 정보 (에스텍베스트 사업장 목록 기준)'));
+    ch.push(H2('발생 사업장 정보 (에스텍 그룹 사업장 목록 기준)'));
     const rows = [['사업장명', s2.name, '관할 지사', s2.br + '지사'], ['주소', s2.addr || '-', null, null], ['계약일', s2.since || '-', '사업장 유형', s2.type || '-'],
       ['계약 업종', s2.work || '-', '근무형태', s2.shift || '-'], ['계약 인원', `총 ${s2.total}명 (남 ${s2.m} · 여 ${s2.f})`, '업종별 인원', `보안 ${s2.sec} · 미화 ${s2.cln} · 기타 ${s2.etc}`],
       ['현장 책임자', [s2.pos, s2.mgr].filter(Boolean).join(' ') + (s2.mtel ? ` (${s2.mtel})` : '') || '-', '사업장 전화', s2.stel || '-']];
@@ -699,7 +699,7 @@ function buildSlides(p) {
 
   /* 3-1. 발생 사업장 */
   if (p.site) {
-    const st = p.site, o = frame(`${s1}  발생 사업장 현황`, `에스텍베스트 사업장 목록 기준 · ${st.br}지사 관할`, no, p);
+    const st = p.site, o = frame(`${s1}  발생 사업장 현황`, `에스텍 그룹 사업장 목록 기준 · ${st.br}지사 관할`, no, p);
     o.push(Rc(0.6, 1.7, 7.2, 4.72, C.white, { line: K.line }));
     o.push(Rc(0.6, 1.7, 7.2, 1.05, K.tint)); o.push(Rc(0.6, 1.7, 0.07, 1.05, C.green));
     o.push(Rc(0.85, 1.88, 1.25, 0.42, C.green, { k: 'para' }));
