@@ -7,7 +7,7 @@
 const APP = {
   name: 'Legal Response System',
   ko: '법률 대응 시스템',
-  version: 'v1.1.2',
+  version: 'v1.1.3',
   build: '2026-11-22',
   shareUrl: 'https://sadness500-boop.github.io/S-Tec-Legal-Response-System/',
   apkUrl: 'https://github.com/sadness500-boop/S-Tec-Legal-Response-System/releases/download/app-latest/stlr-latest.apk',
