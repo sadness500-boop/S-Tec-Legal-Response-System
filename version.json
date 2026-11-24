@@ -1,7 +1,7 @@
 {
-  "version": "1.1.4",
-  "date": "2026-11-22",
-  "note": "현재 화면(상단·하단 정리, 사업장 기준정보 연동, 법률대응팀 사진) 정식 배포 · 아이폰 홈 화면 앱(전체 화면) 지원",
-  "html": "releases/S-Tec-Legal-Response-System_v1.1.4.html",
-  "apk": "releases/S-Tec-Legal-Response-System_v1.1.4.apk"
+  "version": "1.1.5",
+  "date": "2026-11-25",
+  "note": "「사안 내용 (상대방 주장·경위)」 🎙 음성 입력 — 말하면 글로 입력(크롬·엣지), 지원하지 않는 기기는 키보드 음성 입력 안내",
+  "html": "releases/S-Tec-Legal-Response-System_v1.1.5.html",
+  "apk": "releases/S-Tec-Legal-Response-System_v1.1.5.apk"
 }

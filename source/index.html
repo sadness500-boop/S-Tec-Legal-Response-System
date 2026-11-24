@@ -1084,5 +1084,50 @@ html body :is(input,select,textarea)::placeholder{letter-spacing:0}`;
   var first = function () { apply(); setTimeout(function () { try { dispatchEvent(new Event('resize')); } catch (e) { } }, 400); };   /* 지도 크기 다시 맞추기 */
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { setTimeout(first, 0); }); else setTimeout(first, 0);
 })();</script><!-- STEC-LAYOUT END -->
+<script>
+/* =====================================================================
+ * 🎙 음성으로 입력 — 말한 내용을 글로 바꿔 입력 칸에 이어 붙임 (Web Speech API · 한국어)
+ * 지원하지 않는 기기(일부 앱·PC 프로그램)는 키보드 음성 입력(🎤 / 윈도우 Win+H)을 안내합니다.
+ * Designed & Developed by Rat Rae Choi
+ * ===================================================================== */
+(function () {
+  if (window.STEC_VOICE) return;
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const css = `.vc-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(127,127,127,.35);background:rgba(127,127,127,.08);color:inherit;border-radius:999px;padding:4px 12px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;margin-left:8px;vertical-align:middle}
+.vc-btn:hover{background:rgba(127,127,127,.16)}.vc-btn.on{background:#C62828;border-color:#C62828;color:#fff;animation:vcP 1.2s infinite}
+@keyframes vcP{0%,100%{box-shadow:0 0 0 0 rgba(198,40,40,.5)}50%{box-shadow:0 0 0 7px rgba(198,40,40,0)}}
+.vc-live{font-size:12px;color:#C62828;margin:4px 0 0;min-height:0}.vc-live:empty{display:none}
+.vc-tip{font-size:12px;line-height:1.55;margin:6px 0 0;padding:8px 10px;border-radius:10px;background:rgba(240,160,0,.13);border:1px solid rgba(240,160,0,.45)}`;
+  const st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
+  const isWin = /Windows/i.test(navigator.userAgent), isMob = /Android|iPhone|iPad/i.test(navigator.userAgent);
+  const kbHint = isMob ? '휴대폰 키보드의 <b>🎤 마이크</b> 버튼을 눌러 말하면 바로 글로 입력됩니다.' : isWin ? '입력 칸을 누른 뒤 <b>윈도우 키 + H</b> 를 누르고 말하면 글로 입력됩니다.' : '키보드의 받아쓰기(음성 입력) 기능을 쓰세요 — 맥은 <b>Fn 두 번</b>.';
+  let cur = null;
+  function tip(box, html) { let t = box.querySelector('.vc-tip'); if (!t) { t = document.createElement('div'); t.className = 'vc-tip'; box.appendChild(t); } t.innerHTML = html; clearTimeout(t._h); t._h = setTimeout(() => t.remove(), 14000); }
+  function attach(ta, opt) {
+    if (!ta || ta.dataset.vc) return; ta.dataset.vc = '1'; opt = opt || {};
+    const lab = opt.label || (ta.closest('label') && ta.closest('label').querySelector('span')) || ta.previousElementSibling;
+    const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'vc-btn'; btn.title = '눌러서 말하면 글로 입력됩니다 (다시 누르면 멈춤)'; btn.innerHTML = '🎙 음성 입력';
+    const live = document.createElement('div'); live.className = 'vc-live';
+    const box = document.createElement('div'); ta.insertAdjacentElement('afterend', box); box.appendChild(live);
+    if (lab) lab.appendChild(btn); else box.prepend(btn);
+    btn.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); if (cur && cur.ta === ta) return cur.stop(); if (cur) cur.stop(); start(); });
+    function start() {
+      if (!SR) { tip(box, '🎙 이 브라우저·프로그램은 음성 인식을 바로 지원하지 않습니다. ' + kbHint + '<br><small>크롬·엣지 브라우저(인터넷 연결 필요)에서는 이 버튼으로 바로 됩니다.</small>'); ta.focus(); return; }
+      const rec = new SR(); rec.lang = 'ko-KR'; rec.continuous = true; rec.interimResults = true; rec.maxAlternatives = 1;
+      const base0 = ta.value; let base = base0 && !/\s$/.test(base0) ? base0 + (opt.newline === false ? ' ' : '\n') : base0, fin = '', stopped = false, gotAny = false;
+      const write = itm => { ta.value = base + fin + itm; ta.dispatchEvent(new Event('input', { bubbles: true })); };
+      rec.onresult = ev => { let itm = ''; for (let i = ev.resultIndex; i < ev.results.length; i++) { const r = ev.results[i], t = r[0].transcript; if (r.isFinal) { fin += t.trim() + (opt.newline === false ? ' ' : ' '); gotAny = true; } else itm += t; } write(itm); live.textContent = itm ? '… ' + itm : '🔴 듣는 중 — 말씀하세요 (다시 누르면 멈춤)'; };
+      rec.onerror = ev => { const m = { 'not-allowed': '마이크 사용이 허용되지 않았습니다. 주소창 왼쪽 🔒 › 마이크 「허용」으로 바꿔 주세요.', 'service-not-allowed': '이 기기에서는 음성 인식 서비스를 쓸 수 없습니다. ' + kbHint, 'network': '음성 인식 서버에 연결하지 못했습니다(인터넷 연결 확인). ' + kbHint, 'audio-capture': '마이크를 찾지 못했습니다. 마이크 연결을 확인하세요.', 'no-speech': '' }[ev.error]; if (m) tip(box, '🎙 ' + m); };
+      rec.onend = () => { if (!stopped && cur && cur.rec === rec) { try { rec.start(); return; } catch (e) { } } btn.classList.remove('on'); btn.innerHTML = '🎙 음성 입력'; live.textContent = ''; ta.value = (base + fin).replace(/[ \t]+$/, ''); ta.dispatchEvent(new Event('input', { bubbles: true })); ta.dispatchEvent(new Event('change', { bubbles: true })); if (cur && cur.rec === rec) cur = null; };
+      cur = { ta, rec, stop() { stopped = true; try { rec.stop(); } catch (e) { } } };
+      try { rec.start(); } catch (e) { cur = null; tip(box, '🎙 음성 입력을 시작하지 못했습니다. ' + kbHint); return; }
+      btn.classList.add('on'); btn.innerHTML = '⏹ 멈추기'; live.textContent = '🔴 듣는 중 — 말씀하세요 (다시 누르면 멈춤)';
+    }
+  }
+  window.STEC_VOICE = { attach, supported: !!SR };
+})();
+
+(function(){ const go=()=>{ const t=document.getElementById('f_content'); if(t) STEC_VOICE.attach(t); }; if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', go); else go(); })();
+</script>
 </body>
 </html>
